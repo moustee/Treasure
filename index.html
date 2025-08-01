@@ -19,8 +19,8 @@
       background: rgba(34, 49, 63, 0.95);
       box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.37);
       border-radius: 16px;
-      padding: 32px 24px;
-      max-width: 480px;
+      padding: 28px 16px;
+      max-width: 430px;
       width: 100%;
       animation: fadeIn 1s;
       position: relative;
@@ -31,27 +31,32 @@
     }
     #banner {
       font-family: 'Courier New', monospace;
-      font-size: 0.85em;
+      font-size: 0.7em;
       color: #ffe066;
       white-space: pre-wrap;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
       text-shadow: 0 2px 4px #222;
+      line-height: 1.1;
+      letter-spacing: 0.5px;
+      text-align: center;
+      max-width: 100%;
+      overflow-x: auto;
     }
     #output {
-      font-size: 1.2em;
-      margin-bottom: 24px;
-      min-height: 80px;
+      font-size: 1.15em;
+      margin-bottom: 22px;
+      min-height: 76px;
       transition: color 0.2s;
     }
     .choices {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 10px;
       align-items: stretch;
     }
     button.choice, button#restart {
-      padding: 14px;
+      padding: 12px;
       font-size: 1em;
       background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
       color: #222;
@@ -70,39 +75,28 @@
     button#restart {
       background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
       color: #fff;
-      margin-top: 10px;
+      margin-top: 9px;
     }
     .win { color: #1abc9c; font-weight: bold; }
     .gameover { color: #e74c3c; font-weight: bold; }
-    @media (max-width: 600px) {
-      #game { padding: 14px 6px; }
-      #banner { font-size: 0.65em;}
+    @media (max-width: 500px) {
+      #game { padding: 10px 2px; }
+      #banner { font-size: 0.5em;}
     }
   </style>
 </head>
 <body>
   <div id="game">
     <div id="banner">
-*******************************************************************************
-          |                   |                  |                     |
- _________|________________.=""_;=.______________|_____________________|_______
-|                   |  ,-"_,=""     `"=.|                  |
-|___________________|__"=._o`"-._        `"=.______________|___________________
-          |                `"=._o`"=._      _`"=._                     |
- _________|_____________________:=._o "=._."_.-="'"=.__________________|_______
-|                   |    __.--" , ; `"=._o." ,-"""-._ ".   |
-|___________________|_._"  ,. .` ` `` ,  `"-._"-._   ". '__|___________________
-          |           |o`"=._` , "` `; .". ,  "-._"-._; ;              |
- _________|___________| ;`-.o`"=._; ." ` '`."\ ` . "-._ /_______________|_______
-|                   | |o ;    `"-.o`"=._``  '` " ,__.--o;   |
-|___________________|_| ;     (#) `-.o `"=.`_.--"_o.-; ;___|___________________
-____/______/______/___|o;._    "      `".o|o_.--"    ;o;____/______/______/____
-/______/______/______/_"=._o--._        ; | ;        ; ;/______/______/______/_
-____/______/______/______/__"=._o--._   ;o|o;     _._;o;____/______/______/____
-/______/______/______/______/____"=._o._; | ;_.--"o.--"_/______/______/______/_
-____/______/______/______/______/_____"=.o|o_.--""___/______/______/______/____
-/______/______/______/______/______/______/______/______/______/______/_____ /
-*******************************************************************************
+   .-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-.
+   |             TREASURE ISLAND ADVENTURE                |
+   |      ____...---...___                                |
+   |   .-'      . . .   '-.                               |
+   |  /   . . .        .   \      Where will you wander?  |
+   | |   .  .    .     .  .|                              |
+   | \ . .   .  .  . .   /     X marks the spot...        |
+   |  '-.___...---...__.-'                                |
+   '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
     </div>
     <div id="output"></div>
     <div class="choices"></div>
