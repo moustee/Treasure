@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Treasure Island - JS Edition</title>
+  <style>
+    body { font-family: monospace; background: #222; color: #ffe; padding: 2em; }
+    #game { max-width: 600px; margin: auto; background: #333; padding: 2em; border-radius: 8px; }
+    pre { color: #ffd700; }
+    input, button { font-size: 1.2em; margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <pre>
+*******************************************************************************
+          |                   |                  |                     |
+ _________|________________.=""_;=.______________|_____________________|_______
+|                   |  ,-"_,=""     `"=.|                  |
+|___________________|__"=._o`"-._        `"=.______________|___________________
+          |                `"=._o`"=._      _`"=._                     |
+ _________|_____________________:=._o "=._."_.-="'"=.__________________|_______
+|                   |    __.--" , ; `"=._o." ,-"""-._ ".   |
+|___________________|_._"  ,. .` ` `` ,  `"-._"-._   ". '__|___________________
+          |           |o`"=._` , "` `; .". ,  "-._"-._; ;              |
+ _________|___________| ;`-.o`"=._; ." ` '`."\ ` . "-._ /_______________|_______
+|                   | |o ;    `"-.o`"=._``  '` " ,__.--o;   |
+|___________________|_| ;     (#) `-.o `"=.`_.--"_o.-; ;___|___________________
+____/______/______/___|o;._    "      `".o|o_.--"    ;o;____/______/______/____
+/______/______/______/_"=._o--._        ; | ;        ; ;/______/______/______/_
+____/______/______/______/__"=._o--._   ;o|o;     _._;o;____/______/______/____
+/______/______/______/______/____"=._o._; | ;_.--"o.--"_/______/______/______/_
+____/______/______/______/______/_____"=.o|o_.--""___/______/______/______/____
+/______/______/______/______/______/______/______/______/______/______/_____ /
+*******************************************************************************
+    </pre>
+    <div id="output"></div>
+    <input type="text" id="input" placeholder="Type your choice..." autofocus>
+    <button id="submit">Submit</button>
+  </div>
+  <script>
+    // Treasure Island JS logic (matches your Python code)
+    const output = document.getElementById('output');
+    const input = document.getElementById('input');
+    const submit = document.getElementById('submit');
+
+    let step = 0;
+
+    function show(text) {
+      output.innerHTML = text.replace(/\n/g, '<br>');
+      input.value = '';
+      input.focus();
+    }
+
+    // Game state machine
+    let choice1, choice2, choice3;
+
+    function startGame() {
+      show(
+        "Welcome to Treasure Island.<br>" +
+        "They say deep in the heart of the Whispering Forest lies a hidden treasure that reveals itself only to the brave and the wise.<br>" +
+        "Many enter… few return.<br><br>" +
+        'You are at a crossroads. Which way would you like to go?<br>Type "left" or "right"'
+      );
+      step = 1;
+    }
+
+    function handleInput() {
+      const value = input.value.trim().toLowerCase();
+
+      if (step === 1) {
+        choice1 = value;
+        if (choice1 === "right") {
+          show("You walk into a clearing filled with golden light… but it’s a trap. The “treasure” was a mirage. You hear whispers, then silence.<br>GAME OVER!!");
+          step = 0;
+        } else if (choice1 === "left") {
+          show("The forest grows darker, quieter. You keep moving until you see a carved stone with two symbols: a key and an eye.<br>Type \"Key\" or \"Eye\"");
+          step = 2;
+        } else {
+          show("Please enter a valid input.<br>Type \"left\" or \"right\"");
+        }
+      } else if (step === 2) {
+        choice2 = value;
+        if (choice2 === "key") {
+          show(
+            "A hidden door opens in the base of a tree, revealing stairs leading underground. You descend into a torch-lit tunnel.<br>" +
+            "There you stumble on three doors, one by the left, one in the middle and another one by the right.<br>" +
+            'Type "left", "middle" or "right"'
+          );
+          step = 3;
+        } else if (choice2 === "eye") {
+          show("You touch the eye. A loud screech echoes. You’ve awakened a guardian spirit who does not like visitors.<br>GAME OVER!!!");
+          step = 0;
+        } else {
+          show("Please enter a valid input.<br>Type \"Key\" or \"Eye\"");
+        }
+      } else if (step === 3) {
+        choice3 = value;
+        if (choice3 === "middle") {
+          show("It's a room full of fire.<br>GAME OVER!!");
+          step = 0;
+        } else if (choice3 === "left") {
+          show("A room filled with jewels but the door seals behind you. You’re trapped forever with riches you can’t escape with.<br>GAME OVER!!");
+          step = 0;
+        } else if (choice3 === "right") {
+          show("You enter a small room with a chest. Inside: not gold, but a mirror. As you look into it, the forest around you vanishes. You’re back outside holding the real treasure.<br>YOU WIN");
+          step = 0;
+        } else {
+          show("You chose a door that doesn't exist.<br>GAME OVER!!");
+          step = 0;
+        }
+      } else if (step === 0) {
+        startGame();
+      }
+    }
+
+    submit.addEventListener('click', handleInput);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleInput();
+    });
+
+    // Start game on load
+    startGame();
+  </script>
+</body>
+</html>
