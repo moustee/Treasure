@@ -2,17 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Treasure Island - JS Edition</title>
+  <title>Treasure Island Adventure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: monospace; background: #222; color: #ffe; padding: 2em; }
-    #game { max-width: 600px; margin: auto; background: #333; padding: 2em; border-radius: 8px; }
-    pre { color: #ffd700; }
-    input, button { font-size: 1.2em; margin-top: 1em; }
+    body {
+      background: linear-gradient(135deg, #2c3e50 0%, #1abc9c 100%);
+      color: #fff;
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #game {
+      background: rgba(34, 49, 63, 0.95);
+      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.37);
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 480px;
+      width: 100%;
+      animation: fadeIn 1s;
+      position: relative;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    #banner {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      color: #ffe066;
+      white-space: pre-wrap;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 4px #222;
+    }
+    #output {
+      font-size: 1.2em;
+      margin-bottom: 24px;
+      min-height: 80px;
+      transition: color 0.2s;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 12px;
+      align-items: stretch;
+    }
+    button.choice, button#restart {
+      padding: 14px;
+      font-size: 1em;
+      background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
+      color: #222;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+      outline: none;
+    }
+    button.choice:hover, button#restart:hover {
+      background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
+      transform: scale(1.05);
+    }
+    button#restart {
+      background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+      color: #fff;
+      margin-top: 10px;
+    }
+    .win { color: #1abc9c; font-weight: bold; }
+    .gameover { color: #e74c3c; font-weight: bold; }
+    @media (max-width: 600px) {
+      #game { padding: 14px 6px; }
+      #banner { font-size: 0.65em;}
+    }
   </style>
 </head>
 <body>
   <div id="game">
-    <pre>
+    <div id="banner">
 *******************************************************************************
           |                   |                  |                     |
  _________|________________.=""_;=.______________|_____________________|_______
@@ -33,94 +103,145 @@ ____/______/______/______/__"=._o--._   ;o|o;     _._;o;____/______/______/____
 ____/______/______/______/______/_____"=.o|o_.--""___/______/______/______/____
 /______/______/______/______/______/______/______/______/______/______/_____ /
 *******************************************************************************
-    </pre>
+    </div>
     <div id="output"></div>
-    <input type="text" id="input" placeholder="Type your choice..." autofocus>
-    <button id="submit">Submit</button>
+    <div class="choices"></div>
+    <button id="restart" style="display:none;">Restart Game</button>
   </div>
   <script>
-    // Treasure Island JS logic (matches your Python code)
+    // Core adventure steps and logic
     const output = document.getElementById('output');
-    const input = document.getElementById('input');
-    const submit = document.getElementById('submit');
+    const choicesDiv = document.querySelector('.choices');
+    const restartBtn = document.getElementById('restart');
 
-    let step = 0;
-
-    function show(text) {
-      output.innerHTML = text.replace(/\n/g, '<br>');
-      input.value = '';
-      input.focus();
-    }
-
-    // Game state machine
-    let choice1, choice2, choice3;
-
-    function startGame() {
-      show(
-        "Welcome to Treasure Island.<br>" +
-        "They say deep in the heart of the Whispering Forest lies a hidden treasure that reveals itself only to the brave and the wise.<br>" +
-        "Many enter… few return.<br><br>" +
-        'You are at a crossroads. Which way would you like to go?<br>Type "left" or "right"'
-      );
-      step = 1;
-    }
-
-    function handleInput() {
-      const value = input.value.trim().toLowerCase();
-
-      if (step === 1) {
-        choice1 = value;
-        if (choice1 === "right") {
-          show("You walk into a clearing filled with golden light… but it’s a trap. The “treasure” was a mirage. You hear whispers, then silence.<br>GAME OVER!!");
-          step = 0;
-        } else if (choice1 === "left") {
-          show("The forest grows darker, quieter. You keep moving until you see a carved stone with two symbols: a key and an eye.<br>Type \"Key\" or \"Eye\"");
-          step = 2;
-        } else {
-          show("Please enter a valid input.<br>Type \"left\" or \"right\"");
+    const gameData = [
+      {
+        text: `<strong>Welcome to Treasure Island.</strong><br>
+They say deep in the heart of the <span style="color:#ffe066;">Whispering Forest</span> lies a hidden treasure that reveals itself only to the brave and the wise.<br>
+Many enter… few return.<br><br>
+You are at a crossroads.<br>
+Which way would you like to go?`,
+        choices: [
+          { label: 'Left', value: 'left' },
+          { label: 'Right', value: 'right' }
+        ]
+      },
+      {
+        // Step 1: crossroads
+        left: {
+          text: `The forest grows darker, quieter.<br>
+You keep moving until you see a carved stone with two symbols: <span style="color:#f6d365">a key</span> and <span style="color:#fda085">an eye</span>.<br>
+Which will you choose?`,
+          choices: [
+            { label: 'Key', value: 'key' },
+            { label: 'Eye', value: 'eye' }
+          ]
+        },
+        right: {
+          text: `<span class="gameover">You walk into a clearing filled with golden light… but it’s a trap.</span><br>
+The “treasure” was a mirage. You hear whispers, then silence.<br>
+<span class="gameover">GAME OVER!!</span>`,
+          choices: []
         }
-      } else if (step === 2) {
-        choice2 = value;
-        if (choice2 === "key") {
-          show(
-            "A hidden door opens in the base of a tree, revealing stairs leading underground. You descend into a torch-lit tunnel.<br>" +
-            "There you stumble on three doors, one by the left, one in the middle and another one by the right.<br>" +
-            'Type "left", "middle" or "right"'
-          );
-          step = 3;
-        } else if (choice2 === "eye") {
-          show("You touch the eye. A loud screech echoes. You’ve awakened a guardian spirit who does not like visitors.<br>GAME OVER!!!");
-          step = 0;
-        } else {
-          show("Please enter a valid input.<br>Type \"Key\" or \"Eye\"");
+      },
+      {
+        // Step 2: key or eye
+        key: {
+          text: `A hidden door opens in the base of a tree, revealing stairs leading underground.<br>
+You descend into a torch-lit tunnel.<br>
+There you stumble on three doors:<br>
+<span style="color:#43cea2;">Left</span>, <span style="color:#ffe066;">Middle</span>, and <span style="color:#fda085;">Right</span>.<br>
+Which door will you try?`,
+          choices: [
+            { label: 'Left Door', value: 'left' },
+            { label: 'Middle Door', value: 'middle' },
+            { label: 'Right Door', value: 'right' }
+          ]
+        },
+        eye: {
+          text: `<span class="gameover">You touch the eye. A loud screech echoes.</span><br>
+You’ve awakened a guardian spirit who does not like visitors.<br>
+<span class="gameover">GAME OVER!!!</span>`,
+          choices: []
         }
-      } else if (step === 3) {
-        choice3 = value;
-        if (choice3 === "middle") {
-          show("It's a room full of fire.<br>GAME OVER!!");
-          step = 0;
-        } else if (choice3 === "left") {
-          show("A room filled with jewels but the door seals behind you. You’re trapped forever with riches you can’t escape with.<br>GAME OVER!!");
-          step = 0;
-        } else if (choice3 === "right") {
-          show("You enter a small room with a chest. Inside: not gold, but a mirror. As you look into it, the forest around you vanishes. You’re back outside holding the real treasure.<br>YOU WIN");
-          step = 0;
-        } else {
-          show("You chose a door that doesn't exist.<br>GAME OVER!!");
-          step = 0;
+      },
+      {
+        // Step 3: doors
+        left: {
+          text: `<span>A room filled with jewels but the door seals behind you.</span><br>
+You’re trapped forever with riches you can’t escape with.<br>
+<span class="gameover">GAME OVER!!</span>`,
+          choices: []
+        },
+        middle: {
+          text: `<span class="gameover">It's a room full of fire.</span><br>
+<span class="gameover">GAME OVER!!</span>`,
+          choices: []
+        },
+        right: {
+          text: `<span class="win">You enter a small room with a chest.</span><br>
+Inside: not gold, but a mirror.<br>
+As you look into it, the forest around you vanishes. You’re back outside holding the real treasure.<br>
+<span class="win">YOU WIN!</span>`,
+          choices: []
         }
-      } else if (step === 0) {
-        startGame();
       }
+    ];
+
+    let steps = []; // where we are in the game
+
+    function showStep() {
+      choicesDiv.innerHTML = '';
+      let step = steps.length;
+      let data, choices = [];
+
+      if (step === 0) {
+        data = gameData[0];
+        output.innerHTML = data.text;
+        choices = data.choices;
+      }
+      else if (step === 1) {
+        data = gameData[1][steps[0]];
+        output.innerHTML = data.text;
+        choices = data.choices;
+        if (steps[0] === 'right') showRestart();
+      }
+      else if (step === 2) {
+        data = gameData[2][steps[1]];
+        output.innerHTML = data.text;
+        choices = data.choices;
+        if (steps[1] === 'eye') showRestart();
+      }
+      else if (step === 3) {
+        data = gameData[3][steps[2]];
+        output.innerHTML = data.text;
+        choices = data.choices;
+        showRestart();
+      }
+
+      choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.textContent = choice.label;
+        btn.onclick = () => {
+          steps.push(choice.value);
+          showStep();
+        };
+        choicesDiv.appendChild(btn);
+      });
     }
 
-    submit.addEventListener('click', handleInput);
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleInput();
-    });
+    function showRestart() {
+      restartBtn.style.display = 'block';
+    }
 
-    // Start game on load
-    startGame();
+    restartBtn.onclick = () => {
+      steps = [];
+      restartBtn.style.display = 'none';
+      showStep();
+    };
+
+    showStep();
   </script>
 </body>
 </html>
